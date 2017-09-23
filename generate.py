@@ -14,7 +14,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 _model_path = os.path.join(save_dir, 'model')
 
-_NUM_UNITS = 512
+_NUM_UNITS = 1024
 _NUM_LAYERS = 4
 _BATCH_SIZE = 64
 
