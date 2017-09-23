@@ -36,7 +36,7 @@ def get_word_embedding(ndim):
 
 
 if __name__ == '__main__':
-    embedding = get_word_embedding(128)
+    embedding = get_word_embedding(1024)
     print "Size of embedding: (%d, %d)" %embedding.shape
 
 
