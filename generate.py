@@ -4,7 +4,7 @@
 from utils import *
 from vocab import *
 from rhyme import RhymeDict
-from word2vec import get_word_embedding
+from word2vec import *
 from data_utils import *
 from collections import deque
 import tensorflow as tf
@@ -14,7 +14,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 _model_path = os.path.join(save_dir, 'model')
 
-_NUM_UNITS = 1024
+
 _NUM_LAYERS = 4
 _BATCH_SIZE = 64
 
@@ -22,11 +22,11 @@ _BATCH_SIZE = 64
 class Generator:
 
     def __init__(self):
-        embedding = tf.Variable(tf.constant(0.0, shape=[VOCAB_SIZE, _NUM_UNITS]), trainable = False)
-        self._embed_ph = tf.placeholder(tf.float32, [VOCAB_SIZE, _NUM_UNITS])
+        embedding = tf.Variable(tf.constant(0.0, shape=[VOCAB_SIZE, NUM_UNITS]), trainable = False)
+        self._embed_ph = tf.placeholder(tf.float32, [VOCAB_SIZE, NUM_UNITS])
         self._embed_init = embedding.assign(self._embed_ph)
 
-        self.encoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(_NUM_UNITS)] * _NUM_LAYERS)
+        self.encoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(NUM_UNITS)] * _NUM_LAYERS)
         self.encoder_init_state = self.encoder_cell.zero_state(_BATCH_SIZE, dtype = tf.float32)
         self.encoder_inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         self.encoder_lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
@@ -37,7 +37,7 @@ class Generator:
                 sequence_length = self.encoder_lengths,
                 scope = 'encoder')
 
-        self.decoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(_NUM_UNITS)] * _NUM_LAYERS)
+        self.decoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(NUM_UNITS)] * _NUM_LAYERS)
         self.decoder_init_state = self.encoder_cell.zero_state(_BATCH_SIZE, dtype = tf.float32)
         self.decoder_inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         self.decoder_lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
@@ -49,10 +49,10 @@ class Generator:
                 scope = 'decoder')
 
         with tf.variable_scope('decoder'):
-            softmax_w = tf.get_variable('softmax_w', [_NUM_UNITS, VOCAB_SIZE])
+            softmax_w = tf.get_variable('softmax_w', [NUM_UNITS, VOCAB_SIZE])
             softmax_b = tf.get_variable('softmax_b', [VOCAB_SIZE])
 
-        logits = tf.nn.bias_add(tf.matmul(tf.reshape(outputs, [-1, _NUM_UNITS]), softmax_w),
+        logits = tf.nn.bias_add(tf.matmul(tf.reshape(outputs, [-1, NUM_UNITS]), softmax_w),
                 bias = softmax_b)
         self.probs = tf.nn.softmax(logits)
 
@@ -76,7 +76,7 @@ class Generator:
                     tf.local_variables_initializer())
             sess.run(init_op)
             sess.run([self._embed_init], feed_dict = {
-                self._embed_ph: get_word_embedding(_NUM_UNITS)})
+                self._embed_ph: get_word_embedding(NUM_UNITS)})
         else:
             self.saver.restore(sess, ckpt.model_checkpoint_path)
 

@@ -8,6 +8,8 @@ from quatrains import get_quatrains
 from gensim import models
 from numpy.random import uniform
 
+NUM_UNITS = 1024
+
 _w2v_path = os.path.join(data_dir, 'word2vec.npy')
 
 def _gen_embedding(ndim):
@@ -36,7 +38,7 @@ def get_word_embedding(ndim):
 
 
 if __name__ == '__main__':
-    embedding = get_word_embedding(1024)
+    embedding = get_word_embedding(NUM_UNITS)
     print "Size of embedding: (%d, %d)" %embedding.shape
 
 
