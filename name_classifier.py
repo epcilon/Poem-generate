@@ -14,7 +14,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 _model_path = os.path.join(save_dir, 'classifiermodel')
 
-_BATCH_SIZE = 10
+_BATCH_SIZE = 2
 _LABLE_NUM = 2
 
 
@@ -42,7 +42,7 @@ class NameClassfier:
 
 
         outputs,self.final_fw_state,self.final_bw_state = tf.contrib.rnn.static_bidirectional_rnn(
-                          self.cell_fw, self.cell_bw, self.inputs, dtype=tf.float32,
+                          self.cell_fw, self.cell_bw, tf.nn.embedding_lookup(embedding, self.inputs), dtype=tf.float32,
                           sequence_length=self.lengths)
 
         softmax_w = tf.get_variable('softmax_w', [NUM_UNITS, _LABLE_NUM])
@@ -90,3 +90,64 @@ class NameClassfier:
                 self.targets: target})
             total_loss += loss
             print "loss = %f" % (total_loss)
+
+        def _get_train_names(names,batch_size):
+            _, ch2int = get_vocab()
+            line = names[0]
+            gender = names[1]
+            toks = line.strip()
+            batch_s = [0] + [ch2int[ch] for ch in toks[-2:]] + [VOCAB_SIZE - 1]
+            mats = [fill_np_matrix(batch_s, batch_size, VOCAB_SIZE-1)]
+            lens = [fill_np_array(map(len, batch_s), batch_size, 0)]
+            target = [fill_np_matrix(gender, batch_size, 1)]
+            return mats, lens, target
+
+        def _get_names(fn):
+            with open(fn) as f:
+                names = f.readlines()
+
+            return [n.strip().decode('utf8') for n in names]
+
+        def train(self, n_epochs=6, learn_rate=0.002, decay_rate=0.97):
+            male_file = "./data/name/male.txt"
+            female_file = "./data/name/female.txt"
+            male_names = _get_names(male_file)
+            female_names = _get_names(female_file)
+            names = ([(n, 'm') for n in male_names if len(n) < 5] +
+                     [(n, 'f') for n in female_names if len(n) < 5])
+            random.shuffle(names)
+            print "names len = %d" % len(names)
+
+            print "Start training BiRNN model ..."
+            with tf.Session() as sess:
+                self._init_vars(sess)
+                try:
+                    for epoch in range(n_epochs):
+                        batch_no = 0
+                        sess.run(tf.assign(self.learn_rate, learn_rate * decay_rate ** epoch))
+                        for mats, lens, target in _get_train_names(names[batch_no], _BATCH_SIZE):
+                            print "[Training Seq2Seq] epoch = %d/%d, line %d to %d ..." \
+                                  % (epoch, n_epochs, batch_no * _BATCH_SIZE, (batch_no + 1) * _BATCH_SIZE),
+                            self._train_a_batch(sess, mats, lens, target)
+                            batch_no += 1
+                            if 0 == batch_no % 32:
+                                self.saver.save(sess, _model_path)
+                                print "[Training Seq2Seq] The temporary model has been saved."
+                            if batch_no == len(names)-1:
+                                batch_no = 0
+                        self.saver.save(sess, _model_path)
+                    print "Training has finished."
+                except KeyboardInterrupt:
+                    print "\nTraining is interrupted."
+
+if __name__ == '__main__':
+    nameclassifier = NameClassfier()
+    learn_rate = 0.002
+    decay_rate = 0.97
+    epoch_no = 0
+    epoch_step = 5
+    while True:
+        nameclassifier.train(n_epochs = epoch_step,
+                learn_rate = learn_rate*decay_rate**epoch_no,
+                decay_rate = decay_rate)
+        epoch_no += epoch_step
