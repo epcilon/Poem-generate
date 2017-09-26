@@ -37,12 +37,14 @@ class NameClassfier:
 
         self.init_fw_state = self.cell_fw.zero_state(_BATCH_SIZE, dtype=tf.float32)
         self.init_bw_state = self.cell_bw.zero_state(_BATCH_SIZE, dtype=tf.float32)
-        self.inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
+        self.inputs = tf.unstack(tf.transpose(tf.placeholder(tf.int32, [_BATCH_SIZE, _LABLE_NUM])))
         self.lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
 
 
         outputs,self.final_fw_state,self.final_bw_state = tf.contrib.rnn.static_bidirectional_rnn(
-                          self.cell_fw, self.cell_bw, tf.nn.embedding_lookup(embedding, self.inputs), dtype=tf.float32,
+                          self.cell_fw, self.cell_bw,
+                          [tf.nn.embedding_lookup(embedding, x) for x in self.inputs],
+                          dtype=tf.float32,
                           sequence_length=self.lengths)
 
         softmax_w = tf.get_variable('softmax_w', [NUM_UNITS, _LABLE_NUM])
