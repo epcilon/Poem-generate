@@ -93,7 +93,7 @@ class NameClassfier:
             total_loss += loss
             print "loss = %f" % (total_loss)
 
-        def _get_train_names(names,batch_size):
+        def _get_train_names(self,names,batch_size):
             _, ch2int = get_vocab()
             line = names[0]
             gender = names[1]
@@ -104,7 +104,7 @@ class NameClassfier:
             target = [fill_np_matrix(gender, batch_size, 1)]
             return mats, lens, target
 
-        def _get_names(fn):
+        def _get_names(self,fn):
             with open(fn) as f:
                 names = f.readlines()
 
