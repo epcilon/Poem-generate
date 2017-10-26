@@ -8,7 +8,7 @@ from quatrains import get_quatrains
 from gensim import models
 from numpy.random import uniform
 
-NUM_UNITS = 1024
+NUM_UNITS = 512
 
 _w2v_path = os.path.join(data_dir, 'word2vec.npy')
 

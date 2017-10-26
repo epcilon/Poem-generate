@@ -30,36 +30,30 @@ class Generator:
         self.encoder_init_state = self.encoder_cell.zero_state(_BATCH_SIZE, dtype = tf.float32)
         self.encoder_inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         self.encoder_lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
-        # _, self.encoder_final_state = tf.nn.dynamic_rnn(
-        #         cell = self.encoder_cell,
-        #         initial_state = self.encoder_init_state,
-        #         inputs = tf.nn.embedding_lookup(embedding, self.encoder_inputs),
-        #         sequence_length = self.encoder_lengths,
-        #         scope = 'encoder')
+        _, self.encoder_final_state = tf.nn.dynamic_rnn(
+                cell = self.encoder_cell,
+                initial_state = self.encoder_init_state,
+                inputs = tf.nn.embedding_lookup(embedding, self.encoder_inputs),
+                sequence_length = self.encoder_lengths,
+                scope = 'encoder')
 
         self.decoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(NUM_UNITS)] * _NUM_LAYERS)
         self.decoder_init_state = self.encoder_cell.zero_state(_BATCH_SIZE, dtype = tf.float32)
         self.decoder_inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         self.decoder_lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
-        # outputs, self.decoder_final_state = tf.nn.dynamic_rnn(
-        #         cell = self.decoder_cell,
-        #         initial_state = self.decoder_init_state,
-        #         inputs = tf.nn.embedding_lookup(embedding, self.decoder_inputs),
-        #         sequence_length = self.decoder_lengths,
-        #         scope = 'decoder')
-        softmax_w = tf.get_variable('softmax_w', [NUM_UNITS, VOCAB_SIZE])
-        softmax_b = tf.get_variable('softmax_b', [VOCAB_SIZE])
-
-        outputs, self.decoder_final_state = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs = tf.nn.embedding_lookup(embedding, self.encoder_inputs),
-                                                                                                  decoder_inputs = tf.nn.embedding_lookup(embedding, self.decoder_inputs),
-                                                                                                  cell = self.decoder_cell,
-                                                                                                  embedding_size=NUM_UNITS,
-                                                                                                  num_encoder_symbols = VOCAB_SIZE,
-                                                                                                  num_decoder_symbols = VOCAB_SIZE,
-                                                                                                  output_projection=(softmax_w,softmax_b))
+        outputs, self.decoder_final_state = tf.nn.dynamic_rnn(
+                cell = self.decoder_cell,
+                initial_state = self.decoder_init_state,
+                inputs = tf.nn.embedding_lookup(embedding, self.decoder_inputs),
+                sequence_length = self.decoder_lengths,
+                scope = 'decoder')
 
 
-        #with tf.variable_scope('decoder'):
+
+
+        with tf.variable_scope('decoder'):
+            softmax_w = tf.get_variable('softmax_w', [NUM_UNITS, VOCAB_SIZE])
+            softmax_b = tf.get_variable('softmax_b', [VOCAB_SIZE])
 
 
         logits = tf.nn.bias_add(tf.matmul(tf.reshape(outputs, [-1, NUM_UNITS]), softmax_w),
