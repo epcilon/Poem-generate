@@ -18,6 +18,6 @@ if __name__ == '__main__':
                 learn_rate = learn_rate*decay_rate**epoch_no,
                 decay_rate = decay_rate)
         epoch_no += epoch_step
-        print "[Train] %d epochs have finished: 60s cool down ..." %epoch_no
+        print("[Train] %d epochs have finished: 60s cool down ..." %epoch_no)
         sleep(60)
 

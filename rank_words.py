@@ -4,6 +4,7 @@
 from utils import *
 from segment import Segmenter, get_sxhy_dict
 from quatrains import get_quatrains
+from functools import cmp_to_key
 
 
 stopwords_raw = os.path.join(raw_dir, 'stopwords.txt')
@@ -25,8 +26,8 @@ def _text_rank(adjlist):
     damp = 0.85
     scores = dict((word,1.0) for word in adjlist)
     try:
-        for i in xrange(100000):
-            print "[TextRank] Start iteration %d ..." %i,
+        for i in range(100000):
+            print("[TextRank] Start iteration %d ..." %i)
             sys.stdout.flush()
             cnt = 0
             new_scores = dict()
@@ -35,14 +36,14 @@ def _text_rank(adjlist):
                         for other in adjlist[word])
                 if scores[word] != new_scores[word]:
                     cnt += 1
-            print "Done (%d/%d)" %(cnt, len(scores))
+            print("Done (%d/%d)" %(cnt, len(scores)))
             if 0 == cnt:
                 break
             else:
                 scores = new_scores
-        print "TextRank is done."
+        print("TextRank is done.")
     except KeyboardInterrupt:
-        print "\nTextRank is interrupted."
+        print("\nTextRank is interrupted.")
     sxhy_dict = get_sxhy_dict()
     def _compare_words(a, b):
         if a[0] in sxhy_dict and b[0] not in sxhy_dict:
@@ -50,9 +51,9 @@ def _text_rank(adjlist):
         elif a[0] not in sxhy_dict and b[0] in sxhy_dict:
             return 1
         else:
-            return cmp(b[1], a[1])
+            return (b[1]>a[1])-(b[1]<a[1])
     words = sorted([(word,score) for word,score in scores.items()],
-            cmp = _compare_words)
+            key = cmp_to_key(_compare_words))
     with codecs.open(rank_path, 'w', 'utf-8') as fout:
         json.dump(words, fout)
 
@@ -60,12 +61,12 @@ def _text_rank(adjlist):
 def _rank_all_words():
     segmenter = Segmenter()
     stopwords = get_stopwords()
-    print "Start TextRank over the selected quatrains ..."
+    print("Start TextRank over the selected quatrains ...")
     quatrains = get_quatrains()
     adjlist = dict()
     for idx, poem in enumerate(quatrains):
         if 0 == (idx+1)%10000:
-            print "[TextRank] Scanning %d/%d poems ..." %(idx+1, len(quatrains))
+            print("[TextRank] Scanning %d/%d poems ..." %(idx+1, len(quatrains)))
         for sentence in poem['sentences']:
             segs = filter(lambda word: word not in stopwords,
                     segmenter.segment(sentence))
@@ -83,7 +84,7 @@ def _rank_all_words():
         w_sum = sum(weight for other, weight in adjlist[word].items())
         for other in adjlist[word]:
             adjlist[word][other] /= w_sum
-    print "[TextRank] Weighted graph has been built."
+    print("[TextRank] Weighted graph has been built.")
     _text_rank(adjlist)
 
 
@@ -97,5 +98,5 @@ def get_word_ranks():
 
 if __name__ == '__main__':
     ranks = get_word_ranks()
-    print "Size of word_ranks: %d" % len(ranks)
+    print("Size of word_ranks: %d" % len(ranks))
 

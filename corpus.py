@@ -3,6 +3,7 @@
 
 from utils import *
 from rhyme import RhymeDict
+from functools import reduce
 
 
 _corpus_list = ['qts_tab.txt', 'qss_tab.txt', 'qsc_tab.txt', 'qtais_tab.txt',
@@ -10,7 +11,7 @@ _corpus_list = ['qts_tab.txt', 'qss_tab.txt', 'qsc_tab.txt', 'qtais_tab.txt',
 
 
 def _parse_corpus(raw_file, json_file):
-    print "Parsing %s ..." %raw_file ,
+    print("Parsing %s ..." %raw_file)
     sys.stdout.flush()
     rdict = RhymeDict()
     data = []
@@ -46,7 +47,7 @@ def _parse_corpus(raw_file, json_file):
             line = fin.readline().strip()
     with codecs.open(json_file, 'w', 'utf-8') as fout:
         json.dump(data, fout)
-    print "Done (%d poems)" %len(data)
+    print("Done (%d poems)" %len(data))
     return data
 
 
@@ -66,5 +67,5 @@ def get_all_corpus():
 
 if __name__ == '__main__':
     corpus = get_all_corpus()
-    print "Size of the entire corpus: %d" % len(corpus)
+    print("Size of the entire corpus: %d" % len(corpus))
 

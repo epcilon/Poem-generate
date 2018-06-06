@@ -99,10 +99,10 @@ class Generator:
                 self.decoder_lengths: s_lens[idx],
                 self.targets: s_mats[idx][:,1:]})
             total_loss += loss
-        print "loss = %f" %(total_loss/4)
+        print("loss = %f" %(total_loss/4))
 
     def train(self, n_epochs = 6, learn_rate = 0.002, decay_rate = 0.97):
-        print "Start training RNN enc-dec model ..."
+        print("Start training RNN enc-dec model ...")
         with tf.Session() as sess:
             #with tf.device('/gpu:0'):
                 self._init_vars(sess)
@@ -111,17 +111,17 @@ class Generator:
                         batch_no = 0
                         sess.run(tf.assign(self.learn_rate, learn_rate * decay_rate ** epoch))
                         for kw_mats, kw_lens, s_mats, s_lens in batch_train_data(_BATCH_SIZE):
-                            print "[Training Seq2Seq] epoch = %d/%d, line %d to %d ..." \
+                            print("[Training Seq2Seq] epoch = %d/%d, line %d to %d ..." \
                                     %(epoch, n_epochs, batch_no*_BATCH_SIZE, (batch_no+1)*_BATCH_SIZE),
-                            self._train_a_batch(sess, kw_mats, kw_lens, s_mats, s_lens)
+                            self._train_a_batch(sess, kw_mats, kw_lens, s_mats, s_lens))
                             batch_no += 1
                             if 0 == batch_no%32:
                                 self.saver.save(sess, _model_path)
-                                print "[Training Seq2Seq] The temporary model has been saved."
+                                print("[Training Seq2Seq] The temporary model has been saved.")
                         self.saver.save(sess, _model_path)
-                    print "Training has finished."
+                    print("Training has finished.")
                 except KeyboardInterrupt:
-                    print "\nTraining is interrupted."
+                    print("\nTraining is interrupted.")
 
     def generate(self, keywords):
         sentences = []
@@ -203,5 +203,5 @@ if __name__ == '__main__':
     for row in kw_train_data[100:]:
         uprintln(row)
         generator.generate(row)
-        print
+        print()
 

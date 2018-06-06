@@ -18,7 +18,7 @@ def _gen_word_cnts():
             for seg in segs:
                 counters[seg] = counters[seg]+1 if seg in counters else 1
         if 0 == (idx+1)%10000:
-            print "[Word Count] %d/%d quatrains has been processed." %(idx+1, len(quatrains))
+            print("[Word Count] %d/%d quatrains has been processed." %(idx+1, len(quatrains)))
     with codecs.open(_wc_path, 'w', 'utf-8') as fout:
         json.dump(counters, fout)
 

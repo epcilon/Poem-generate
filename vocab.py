@@ -11,7 +11,7 @@ VOCAB_SIZE = 6000
 
 
 def _gen_vocab():
-    print "Generating the vocabulary ..."
+    print("Generating the vocabulary ...")
     corpus = get_all_corpus()
     char_cnts = dict()
     for idx, poem in enumerate(corpus):
@@ -19,11 +19,11 @@ def _gen_vocab():
             for ch in sentence:
                 char_cnts[ch] = char_cnts[ch]+1 if ch in char_cnts else 1
         if 0 == (idx+1)%10000:
-            print "[Vocabulary] %d/%d poems have been processed." %(idx+1, len(corpus))
+            print("[Vocabulary] %d/%d poems have been processed." %(idx+1, len(corpus)))
     vocab = sorted([ch for ch in char_cnts], key = lambda ch: -char_cnts[ch])[:VOCAB_SIZE-2]
     with codecs.open(_vocab_path, 'w', 'utf-8') as fout:
         json.dump(vocab, fout)
-    print "The vocabulary has been built."
+    print("The vocabulary has been built.")
 
 
 def get_vocab():
@@ -39,8 +39,8 @@ def get_vocab():
 
 if __name__ == '__main__':
     int2ch, _ = get_vocab()
-    print "Size of the vocabulary: %d" % len(int2ch)
+    print("Size of the vocabulary: %d" % len(int2ch))
     for ch in int2ch[:100]:
         uprint(ch)
-    print
+    print()
 

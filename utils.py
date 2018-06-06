@@ -20,10 +20,10 @@ if not os.path.exists(save_dir):
 
 
 def uprint(x):
-    print repr(x).decode('unicode-escape'),
+    print(repr(x).decode('unicode-escape'),)
 
 def uprintln(x):
-    print repr(x).decode('unicode-escape')
+    print(repr(x).decode('unicode-escape'))
 
 def is_CN_char(ch):
     return ch >= u'\u4e00' and ch <= u'\u9fa5'
