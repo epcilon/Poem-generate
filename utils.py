@@ -20,10 +20,10 @@ if not os.path.exists(save_dir):
 
 
 def uprint(x):
-    print(repr(x).decode('unicode-escape'),)
+    print(repr(x))
 
 def uprintln(x):
-    print(repr(x).decode('unicode-escape'))
+    print(repr(x))
 
 def is_CN_char(ch):
     return ch >= u'\u4e00' and ch <= u'\u9fa5'
@@ -38,4 +38,6 @@ def split_sentences(line):
                 sentences.append(sentence)
             i = j+1
     return sentences
+def cmp(a,b):
+    return (a>b)-(a<b)
 
