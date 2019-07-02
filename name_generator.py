@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
-
+from plan import Planner
 from generate import Generator
-import sys
-
+from random import randint
 
 
 
 if __name__ == '__main__':
+    planner = Planner()
     generator = Generator()
     while True:
         keyword = input('Input Keyword:\t').strip()
@@ -31,10 +31,16 @@ if __name__ == '__main__':
             print('Keyword:', keyword, 'Gender:', g, 'Surname:', surname)
             print('\n')
             for _ in range(n):
-                sentences = generator.generate_name(keyword, g, surname)
+                keywords = planner.plan(keyword + ' '+ g + ' ' + surname)
+
+                sentences = generator.generate_name(keywords[0], keywords[2], keywords[1])
                 print("Poem Generated:")
                 print('\t' + sentences[0] + u'，' + sentences[1] + u'。')
                 print("Name Generated:")
-                print('\t' + surname + sentences[2][:2])
+                f = randint(0, len(sentences[2]) - 1)
+                s = randint(0, len(sentences[2]) - 1)
+                while s == f:
+                    s = randint(0, len(sentences[2]) - 1)
+                print('\t' + surname + sentences[2][f] + sentences[2][s])
                 print()
 
