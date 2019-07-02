@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- coding:utf-8 -*-
 
-from data_utils import *
-from plan import Planner
 from generate import Generator
 import sys
 
@@ -10,21 +8,33 @@ import sys
 
 
 if __name__ == '__main__':
-    planner = Planner()
     generator = Generator()
     while True:
-        line = input('Input Text:\t').strip()
-        if line.lower() == 'quit' or line.lower() == 'exit':
+        keyword = input('Input Keyword:\t').strip()
+        if keyword.lower() == 'quit' or keyword.lower() == 'exit':
             break
-        elif len(line) > 0:
-            keywords = planner.plan(line)
-            print("Keywords:\t")
-            for word in keywords:
-                print(word)
+        gender = input('Input Gerder(1 for male, 0 for female):\t')
+        try:
+            if int(gender):
+                g = u'男'
+            else:
+                g = u'女'
+        except:
+            g = u'女'
+        surname = input('Input Surname:\t')
+        n = input('How Many names:\t')
+        try:
+            n = int(n)
+        except:
+            n = 1
+        if len(keyword) > 0:
+            print('Keyword:', keyword, 'Gender:', g, 'Surname:', surname)
             print('\n')
-            print("Poem Generated:\n")
-            sentences = generator.generate(keywords)
-            print('\t'+sentences[0]+u'，'+sentences[1]+u'。')
-            print('\t'+sentences[2]+u'，'+sentences[3]+u'。')
-            print()
+            for _ in range(n):
+                sentences = generator.generate_name(keyword, g, surname)
+                print("Poem Generated:")
+                print('\t' + sentences[0] + u'，' + sentences[1] + u'。')
+                print("Name Generated:")
+                print('\t' + surname + sentences[2][:2])
+                print()
 

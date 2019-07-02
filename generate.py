@@ -196,7 +196,79 @@ class Generator:
                     sentences.append(sentence)
         return sentences
 
-
+    def generate_name(self, keyword, gernder, surname):
+        keywords = [surname, keyword, gernder]
+        sentences = []
+        ckpt = tf.train.get_checkpoint_state(save_dir)
+        if not ckpt or not ckpt.model_checkpoint_path:
+            self.train(1)
+        with tf.Session() as sess:
+            #with tf.device('/gpu:0'):
+                self._init_vars(sess)
+                rdict = RhymeDict()
+                length = -1
+                rhyme_ch = None
+                for idx, kw in enumerate(keywords):
+                    kw_mat = fill_np_matrix([[self.ch2int[ch] for ch in kw]], _BATCH_SIZE, VOCAB_SIZE-1)
+                    kw_len = fill_np_array([len(kw)], _BATCH_SIZE, 0)
+                    encoder_feed_dict = {self.encoder_inputs: kw_mat,
+                            self.encoder_lengths: kw_len}
+                    if idx > 0:
+                        encoder_feed_dict[self.encoder_init_state] = state
+                    state = sess.run(self.encoder_final_state,
+                            feed_dict = encoder_feed_dict)
+                    sentence = u''
+                    decoder_inputs = np.zeros([_BATCH_SIZE, 1], dtype = np.int32)
+                    decoder_lengths = fill_np_array([1], _BATCH_SIZE, 0)
+                    i = 0
+                    while True:
+                        probs, state = sess.run([self.probs, self.decoder_final_state], feed_dict = {
+                            self.decoder_init_state: state,
+                            self.decoder_inputs: decoder_inputs,
+                            self.decoder_lengths: decoder_lengths})
+                        prob_list = probs.tolist()[0]
+                        prob_list[0] = 0.
+                        if length > 0:
+                            if i == length:
+                                prob_list = [.0]*VOCAB_SIZE
+                                prob_list[-1] = 1.
+                            elif i == length-1:
+                                for j, ch in enumerate(self.int2ch):
+                                    if  0 == j or VOCAB_SIZE-1 == j:
+                                        prob_list[j] = 0.
+                                    else:
+                                        rhyme = rdict._get_rhyme(ch)
+                                        tone = rdict.get_tone(ch)
+                                        if (1 == idx and 'p' != tone) or \
+                                                (2 == idx and (rdict._get_rhyme(rhyme_ch) == rhyme or 'z' != tone)) or \
+                                                (3 == idx and (ch == rhyme_ch or rdict._get_rhyme(rhyme_ch) != rhyme or 'p' != tone)):
+                                            prob_list[j] = 0.
+                            else:
+                                prob_list[-1] = 0.
+                        else:
+                            if i != 5 and i != 7:
+                                prob_list[-1] = 0.
+                        prob_sums = np.cumsum(prob_list)
+                        if prob_sums[-1] == 0.:
+                            prob_list = probs.tolist()[0]
+                            prob_sums = np.cumsum(prob_list)
+                        for j in range(VOCAB_SIZE-1, -1, -1):
+                            if random.random() < prob_list[j]/prob_sums[j]:
+                                ch = self.int2ch[j]
+                                break
+                        #ch = self.int2ch[np.argmax(prob_list)]
+                        if idx == 1 and i == length-1:
+                            rhyme_ch = ch
+                        if ch == self.int2ch[-1]:
+                            length = i
+                            break
+                        else:
+                            sentence += ch
+                            decoder_inputs[0,0] = self.ch2int[ch]
+                            i += 1
+                    #uprintln(sentence)
+                    sentences.append(sentence)
+        return sentences
 if __name__ == '__main__':
     generator = Generator()
     kw_train_data = get_kw_train_data()
