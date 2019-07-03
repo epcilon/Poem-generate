@@ -8,7 +8,7 @@ from quatrains import get_quatrains
 from gensim import models
 from numpy.random import uniform
 
-NUM_UNITS = 512
+NUM_UNITS = 300
 
 _w2v_path = os.path.join(data_dir, 'word2vec.npy')
 
@@ -23,7 +23,7 @@ def _gen_embedding(ndim):
         if 0 == (idx+1)%10000:
             print("[Word2Vec] %d/%d poems have been processed." %(idx+1, len(quatrains)))
     print("Hold on. This may take some time ...")
-    model = models.Word2Vec(ch_lists, size = ndim, min_count = 5)
+    model = models.Word2Vec(ch_lists, size=ndim, min_count=5)
     embedding = uniform(-1.0, 1.0, [VOCAB_SIZE, ndim])
     for idx, ch in enumerate(int2ch):
         if ch in model.wv:
