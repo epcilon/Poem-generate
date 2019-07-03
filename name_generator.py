@@ -16,11 +16,11 @@ if __name__ == '__main__':
         gender = input('Input Gerder(1 for male, 0 for female):\t')
         try:
             if int(gender):
-                g = u'男'
+                g = '男'
             else:
-                g = u'女'
+                g = '女'
         except:
-            g = u'女'
+            g = '女'
         surname = input('Input Surname:\t')
         n = input('How Many names:\t')
         try:
