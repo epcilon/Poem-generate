@@ -59,8 +59,8 @@ def _gen_rhy_dict():
     with codecs.open(py_raw, 'r', 'utf-8') as fin:
         line = fin.readline()
         while line:
-            toks = filter(lambda x: len(x) > 0, line.strip().split(' '))
-            ch = unichr(int(toks[0], 16))
+            toks = list(filter(lambda x: len(x) > 0, line.strip().split(' ')))
+            ch = chr(int(toks[0], 16))
             if is_CN_char(ch):
                 ch2rhy[ch] = (toks[1][:-1], int(toks[1][-1]))
             line = fin.readline()

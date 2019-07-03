@@ -19,7 +19,7 @@ def _gen_embedding(ndim):
     quatrains = get_quatrains()
     for idx, poem in enumerate(quatrains):
         for sentence in poem['sentences']:
-            ch_lists.append(filter(lambda ch: ch in ch2int, sentence))
+            ch_lists.append(list(filter(lambda ch: ch in ch2int, sentence)))
         if 0 == (idx+1)%10000:
             print("[Word2Vec] %d/%d poems have been processed." %(idx+1, len(quatrains)))
     print("Hold on. This may take some time ...")
