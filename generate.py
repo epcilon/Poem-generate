@@ -64,7 +64,7 @@ class Generator:
 
         self.targets = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         labels = tf.one_hot(tf.reshape(self.targets, [-1]), depth = VOCAB_SIZE)
-        loss = tf.nn.softmax_cross_entropy_with_logits(
+        loss = tf.nn.softmax_cross_entropy_with_logits_v2(
                 logits = logits,
                 labels = labels)
         self.loss = tf.reduce_mean(loss)
