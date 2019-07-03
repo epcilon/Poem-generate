@@ -8,7 +8,7 @@ from word2vec import *
 from data_utils import *
 from collections import deque
 import tensorflow as tf
-from tensorflow.contrib import rnn
+from tensorflow.nn.rnn_cell import LSTMCell, MultiRNNCell
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -26,7 +26,7 @@ class Generator:
         self._embed_ph = tf.placeholder(tf.float32, [VOCAB_SIZE, NUM_UNITS])
         self._embed_init = embedding.assign(self._embed_ph)
 
-        self.encoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(NUM_UNITS)] * _NUM_LAYERS)
+        self.encoder_cell = MultiRNNCell([LSTMCell(NUM_UNITS)] * _NUM_LAYERS)
         self.encoder_init_state = self.encoder_cell.zero_state(_BATCH_SIZE, dtype = tf.float32)
         self.encoder_inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         self.encoder_lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
@@ -37,7 +37,8 @@ class Generator:
                 sequence_length = self.encoder_lengths,
                 scope = 'encoder')
 
-        self.decoder_cell = rnn.MultiRNNCell([rnn.BasicLSTMCell(NUM_UNITS)] * _NUM_LAYERS)
+
+        self.decoder_cell = MultiRNNCell([LSTMCell(NUM_UNITS)] * _NUM_LAYERS)
         self.decoder_init_state = self.encoder_cell.zero_state(_BATCH_SIZE, dtype = tf.float32)
         self.decoder_inputs = tf.placeholder(tf.int32, [_BATCH_SIZE, None])
         self.decoder_lengths = tf.placeholder(tf.int32, [_BATCH_SIZE])
@@ -47,6 +48,7 @@ class Generator:
                 inputs = tf.nn.embedding_lookup(embedding, self.decoder_inputs),
                 sequence_length = self.decoder_lengths,
                 scope = 'decoder')
+
 
 
 
