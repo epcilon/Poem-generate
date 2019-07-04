@@ -42,6 +42,6 @@ if __name__ == '__main__':
                 while s <= f:
                     f = randint(0, len(sentences[2]) - 1)
                     s = randint(0, len(sentences[2]) - 1)
-                print('\t' + surname + sentences[2][f] + sentences[2][s])
+                print('\t' + surname + sentences[2][:2])
                 print()
 
