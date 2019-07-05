@@ -193,7 +193,7 @@ class Generator:
         return sentences
 
     def generate_name(self, keyword, gernder, surname):
-        keywords = [surname, keyword, gernder]
+        keywords = [keyword, gernder, surname]
         sentences = []
         ckpt = tf.train.get_checkpoint_state(save_dir)
         if not ckpt or not ckpt.model_checkpoint_path:
