@@ -24,9 +24,9 @@ The raw data files were downloaded from the Internet, mostly from similar open s
 
 ## Dependencies
 
-Python 2.7
+Python 3.7
 
-[TensorFlow 1.0](https://www.tensorflow.org/)
+[TensorFlow 1.10](https://www.tensorflow.org/)
 
 [Jieba 0.38](https://github.com/fxsjy/jieba)
 
